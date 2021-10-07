@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>ML App - Predictive Dashboard</title>
+
+<!--  CDN per tema dashboard
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/cerulean/bootstrap.min.css" integrity="sha384-3fdgwJw17Bi87e1QQ4fsLn4rUFqWw//KU0g8TvV6quvahISRewev6/EocKNuJmEw" crossorigin="anonymous">
+-->
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Google Chart -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<!-- File Javascript -->
+<script type="text/javascript" src="index.js"></script>
+<style>
+  .hide:  {
+      display:  none;
+  }
+  footer{
+      position:relative;
+      bottom:0;
+      left:0;
+      width:100%;
+  }
+</style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Machine Learning Application - Predictive Dashboard</a>
+    <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="true" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>-->
+  </div>
+</nav>
+
+<!-- Nav tabs 
+<ul class="nav nav-tabs nav-justified">
+  <li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" href="#home">Home</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#menu1">Model 1</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#menu2">Model 2</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#menu3">Model 3</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#menu4">Models comparison</a>
+  </li>
+</ul>
+-->
+<div class="container pt-4">
+<hr>
+
+<p>This page leverages several machine learning predictive models to provide predictions about wine quality.<br>
+The three different models are Gradient Boosting Machine, Generalized Linear Model and Distributed Random Forest.
+You can enter the new data in two different ways: by filling out the form or by importing a csv file and you can also download the pojo and mojo of the three predictive models.</p>
+
+<hr>
+
+<form>
+	<div class="form-group">
+    <label for="algoritmo">Choose the algorithm</label>
+    <select class="form-control" id="algoritmo">
+      <option>Gradient Boosting Machine</option>
+      <option>Generalized Linear Model</option>
+      <option>Distributed Random Forest</option>
+      <option>Models Comparison</option>
+    </select>
+    </div>
+</form>
+
+<hr>
+
+<div class="form-group">
+  <label for="data-input">Choose how to import new data to predict the quality of the wine</label>
+  <select class="form-control" id="data-input">
+    <option>Fill out the form</option>
+    <option>Import new data from a csv file</option>
+  </select>
+</div>
+
+<hr>
+
+<span id="file-hide-show">
+  <div class="mb-3">
+  <label for="formFile" class="form-label">Select a file</label>
+  <input class="form-control" type="file" id="formFile">
+  </div>
+  <br>
+  <input type="button" id="buttonPrediction1" class="btn btn-primary" value="Prediction">
+  <span id="dwn_pojo_mojo1" class="float-right">
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/gbm_0a1b9c5f_c6b8_4e5c_917e_8c357b00181c.java" class="btn btn-primary" id="gbm_pojo1" role="button" style="margin-left: 10px" download>Download pojo</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/gbm_0a1b9c5f_c6b8_4e5c_917e_8c357b00181c.zip" class="btn btn-primary" id="gbm_mojo1" role="button" style="margin-left: 10px" download>Download mojo package</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/glm_f62a2764_cf25_4d29_86e1_79f93779e554.java" class="btn btn-primary" id="glm_pojo1" role="button" style="margin-left: 10px" download>Download pojo</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/glm_f62a2764_cf25_4d29_86e1_79f93779e554.zip" class="btn btn-primary" id="glm_mojo1" role="button" style="margin-left: 10px" download>Download mojo package</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/drf_47bb7c5b_0398_403b_aac8_305a8aa47972.java" class="btn btn-primary" id="dfr_pojo1" role="button" style="margin-left: 10px" download>Download pojo</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/drf_47bb7c5b_0398_403b_aac8_305a8aa47972.zip" class="btn btn-primary" id="dfr_mojo1" role="button" style="margin-left: 10px" download>Download mojo package</a>
+  </span>
+</span>
+
+<form accept-charset="utf-8">
+<!--  <form action="predict-servlet">
+      <form accept-charset="utf-8">
+-->
+<span id="form-hide-show">
+  <div class="form-row">
+  <div class="form-group col-md-6">
+    <label for="FixedAcidity">Fixed Acidity</label>
+    <input type="text" class="form-control" id="FixedAcidity" placeholder="7.8">
+    <small class="form-text text-muted">Select a value between 7.0 and 12.0.</small>
+  </div>
+  <div class="form-group col-md-6">
+    <label for="VolatileAcidity">Volatile Acidity</label>
+    <input type="text" class="form-control" id="VolatileAcidity" placeholder="0.7">
+    <small class="form-text text-muted">Select a value between 0.2 and 0.9.</small>
+  </div>
+  </div>
+
+  <div class="form-row">
+  <div class="form-group col-md-6">
+    <label for="CitricAcid">Citric Acid</label>
+    <input type="text" class="form-control" id="CitricAcid" placeholder="0">
+    <small class="form-text text-muted">Select a value between 0 and 0.6.</small>
+  </div>
+  <div class="form-group col-md-6">
+    <label for="ResidualSugar">Residual Sugar</label>
+    <input type="text" class="form-control" id="ResidualSugar" placeholder="1.9">
+    <small class="form-text text-muted">Select a value between 1 and 7.</small>
+  </div>
+  </div>
+
+  <div class="form-row">
+  <div class="form-group col-md-6">
+    <label for="Chlorides">Chlorides</label>
+    <input type="text" class="form-control" id="Chlorides" placeholder="0.075">
+    <small class="form-text text-muted">Select a value between 0.055 and 0.098.</small>
+  </div>
+  <div class="form-group col-md-6">
+    <label for="FreeSulfurDioxide">Free Sulfur Dioxide</label>
+    <input type="text" class="form-control" id="FreeSulfurDioxide" placeholder="15">
+    <small class="form-text text-muted">Select a value between 9 and 30.</small>
+  </div>
+  </div>
+
+  <div class="form-row">
+  <div class="form-group col-md-6">
+    <label for="TotalSulfurDioxide">Total Sulfur Dioxide</label>
+    <input type="text" class="form-control" id="TotalSulfurDioxide" placeholder="50">
+    <small class="form-text text-muted">Select a value between 15 and 100.</small>
+  </div>
+  <div class="form-group col-md-6">
+    <label for="Density">Density</label>
+    <input type="text" class="form-control" id="Density" placeholder="0.9978">
+    <small class="form-text text-muted">Select a value between 0.9942 and 0.9985.</small>
+  </div>
+  </div>
+
+  <div class="form-row">
+  <div class="form-group col-md-6">
+    <label for="pH">pH</label>
+    <input type="text" class="form-control" id="pH" placeholder="3.5">
+    <small class="form-text text-muted">Select a value between 3.0 and 3.55.</small>
+  </div>
+  <div class="form-group col-md-6">
+    <label for="Sulphates">Sulphates</label>
+    <input type="text" class="form-control" id="Sulphates" placeholder="0.56">
+    <small class="form-text text-muted">Select a value between 0.4 and 0.8.</small>
+  </div>
+  </div>
+
+  <div class="form-row">
+  <div class="form-group col-md-6">
+    <label for="Alchol">Alchol</label>
+    <input type="text" class="form-control" id="Alchol" placeholder="9.5">
+    <small class="form-text text-muted">Select a value between 9 and 11.</small>
+  </div>
+  </div>
+
+
+  <input type="button" id="buttonPrediction" class="btn btn-primary" value="Prediction">
+
+  <span id="dwn_pojo_mojo" class="float-right">
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/gbm_0a1b9c5f_c6b8_4e5c_917e_8c357b00181c.java" class="btn btn-primary" id="gbm_pojo" role="button" style="margin-left: 8px" download>Download pojo</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/gbm_0a1b9c5f_c6b8_4e5c_917e_8c357b00181c.zip" class="btn btn-primary" id="gbm_mojo" role="button" style="margin-left: 8px" download>Download mojo package</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/glm_f62a2764_cf25_4d29_86e1_79f93779e554.java" class="btn btn-primary" id="glm_pojo" role="button" style="margin-left: 8px" download>Download pojo</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/glm_f62a2764_cf25_4d29_86e1_79f93779e554.zip" class="btn btn-primary" id="glm_mojo" role="button" style="margin-left: 8px" download>Download mojo package</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/drf_47bb7c5b_0398_403b_aac8_305a8aa47972.java" class="btn btn-primary" id="dfr_pojo" role="button" style="margin-left: 8px" download>Download pojo</a>
+  <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/drf_47bb7c5b_0398_403b_aac8_305a8aa47972.zip" class="btn btn-primary" id="dfr_mojo" role="button" style="margin-left: 8px" download>Download mojo package</a>
+  </span>
+</span>
+
+</form>
+
+<hr>
+</div>
+
+<div class="container pt-3">
+	<div id="idContainerPrediction"></div>
+</div>
+
+<!-- Tab panes 
+<div class="tab-content">
+
+  <div class="tab-pane container active" id="home">
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  </div>
+  
+  <div class="tab-pane container fade" id="menu1">
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  </div>
+  
+  <div class="tab-pane container fade" id="menu2">
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  </div>
+  
+  <div class="tab-pane container fade" id="menu3">
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  </div>
+  
+  <div class="tab-pane container fade" id="menu4">
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-md-6">pippo</div>
+  		<div class="col-md-6">pippo</div>
+  	</div>
+  </div>
+</div>
+
+-->
+
+
+<footer class="bg-dark text-center text-lg-start" style="margin-top: 35px">
+  <!-- Copyright -->
+  <div class="text-center p-3 bg-dark" style="background-color: white;">
+    <span style="color: white">© 2021 Copyright: ML Predictive Dashboard - Rinaldi</span>
+  </div>
+  <!-- Copyright -->
+</footer>
+
+</body>
+</html>

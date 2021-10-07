@@ -5,6 +5,7 @@ package h2o.medium.tutorial;
 
 import java.io.IOException;
 
+import hex.ModelCategory;
 import hex.genmodel.MojoModel;
 import hex.genmodel.easy.EasyPredictModelWrapper;
 import hex.genmodel.easy.RowData;
@@ -34,5 +35,14 @@ public final class H2OModel {
 			return 0.0;
 		}
 	}
+	
+	public String modelCategory() {
+			ModelCategory category = predict.getModelCategory();
+			return category.toString();
+	}
+	
+	public String[] leafNode(RowData input) throws PredictException {
+		return predict.leafNodeAssignment(input);
+}
 
 }
