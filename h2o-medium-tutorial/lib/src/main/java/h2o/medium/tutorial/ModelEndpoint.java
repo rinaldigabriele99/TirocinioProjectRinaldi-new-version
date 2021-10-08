@@ -3,10 +3,13 @@
  */
 package h2o.medium.tutorial;
 
+import java.util.ArrayList;
+
 import com.google.gson.JsonObject;
 
 import hex.genmodel.easy.RowData;
 import io.javalin.Javalin;
+import io.javalin.core.util.FileUtil;
 
 /**
  * @author sm
@@ -59,6 +62,12 @@ public final class ModelEndpoint {
 			resp.addProperty("category2", category2);
 			//resp.addProperty("leafNode2", leafNode2.toString());
 			ctx.result(resp.toString());
+		});
+		endpoint.post("/upload-files", ctx -> {
+			ctx.uploadedFiles("files").forEach(file -> {
+			FileUtil.streamToFile(file.getContent(), "upload/" + file.getFilename());
+			});
+			ctx.html("Upload complete");
 		});
 
 	}

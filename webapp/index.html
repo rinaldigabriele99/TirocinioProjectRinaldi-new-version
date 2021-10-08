@@ -100,12 +100,15 @@ You can enter the new data in two different ways: by filling out the form or by 
 <hr>
 
 <span id="file-hide-show">
+<form method ="post" action="/upload-files" enctype = "multipart/form-data" accept-charset="utf-8">
   <div class="mb-3">
   <label for="formFile" class="form-label">Select a file</label>
-  <input class="form-control" type="file" id="formFile">
+  <input class="form-control" type="file" id="formFile" name="files" multiple>
   </div>
-  <br>
-  <input type="button" id="buttonPrediction1" class="btn btn-primary" value="Prediction">
+  
+  <button class="btn btn-primary">Upload File</button>
+  <!--<input type="button" id="buttonPrediction1" class="btn btn-primary" value="Prediction">-->
+</form>
   <span id="dwn_pojo_mojo1" class="float-right">
   <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/gbm_0a1b9c5f_c6b8_4e5c_917e_8c357b00181c.java" class="btn btn-primary" id="gbm_pojo1" role="button" style="margin-left: 10px" download>Download pojo</a>
   <a href="/Users/rinal/OneDrive/Desktop/GabrieleRinaldi-webserveh2o/webapp/Download_pojo_mojo/gbm_0a1b9c5f_c6b8_4e5c_917e_8c357b00181c.zip" class="btn btn-primary" id="gbm_mojo1" role="button" style="margin-left: 10px" download>Download mojo package</a>

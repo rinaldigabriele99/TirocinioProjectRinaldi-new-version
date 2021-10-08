@@ -76,11 +76,6 @@ $(document).ready(function(){
 		}
 		if ($('#data-input option:selected').text() == 'Import new data from a csv file'){
 			$("#form-hide-show").hide()
-			var fd = new FormData();
-			var files = $("#formFile")[0].files[0];
-			fd.append("#formFile",files);
-			var url = "http://localhost:8080/predict"
-			console.log(fd)
 
 			$("#gbm_pojo1").show()
 			$("#gbm_mojo1").show()
@@ -156,25 +151,6 @@ $(document).ready(function(){
 			})
 		}
 	})
-
-	var fd = new FormData();
-	var files = $("#formFile")[0].files[0];
-	fd.append("#formFile",files);
-	var url = "http://localhost:8080/predict"
-	console.log(fd)
-
-	/*$.ajax({
-                  url: url,
-                  type: "post",
-                  data: fd,
-                  contentType: false,
-                  processData: false,
-                  success: function(response){
-                    alert(response);
-                  },
-          });*/
-
-
 
 
 	$( "#buttonPrediction" ).on( "click", function() {
