@@ -3,8 +3,13 @@
  */
 package h2o.medium.tutorial;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import hex.genmodel.easy.RowData;
@@ -66,8 +71,58 @@ public final class ModelEndpoint {
 		endpoint.post("/upload-files", ctx -> {
 			ctx.uploadedFiles("files").forEach(file -> {
 			FileUtil.streamToFile(file.getContent(), "upload/" + file.getFilename());
+			ArrayList<RowData> list = new ArrayList<RowData>();
+			JsonArray resp = new JsonArray();
+			String pathToCsv = "upload/" + file.getFilename();
+			BufferedReader csvReader = null;
+			try {
+				csvReader = new BufferedReader(new FileReader(pathToCsv));
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			String row;
+			String[] first_row = null;
+			try {
+				first_row = csvReader.readLine().split(",");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			int c = 0;
+			try {
+				while ((row = csvReader.readLine()) != null) {
+					JsonObject jo = new JsonObject();
+					RowData rd = new RowData();
+					c++;
+					//if (c == 1) continue;
+				    String[] data = row.split(",");
+				    for (int i=0; i<data.length; i++) {
+				    	rd.put(first_row[i], data[i]);
+				    }
+				    list.add(rd);
+				    double prediction = model.predict(rd);
+				    double prediction1 = model1.predict(rd);
+				    double prediction2 = model.predict(rd);
+				    jo.addProperty("gbm", prediction);
+				    jo.addProperty("glm", prediction1);
+				    jo.addProperty("drf", prediction2);
+				    resp.add(jo);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				csvReader.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//ctx.json(resp);
+			ctx.result(resp.toString());
 			});
-			ctx.html("Upload complete");
+			//ctx.html("Upload complete");
 		});
 
 	}

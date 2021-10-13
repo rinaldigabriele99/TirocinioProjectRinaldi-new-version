@@ -1,4 +1,5 @@
 $(document).ready(function(){
+
 	$("#form-hide-show").show()
 	$("#file-hide-show").show()
 	$("#file-hide-show").hide()
@@ -152,6 +153,52 @@ $(document).ready(function(){
 		}
 	})
 
+	/*$("#idForm").submit(function(e) {
+
+    e.preventDefault(); // avoid to execute the actual submit of the form.
+
+    var form = $(this);
+    var url = form.attr('action');
+    console.log(url)
+    console.log(form.serialize())
+    alert($("#formFile").val());
+    var fd = new FormData();
+    fd.append('file', this.files[0]);
+    
+    $.ajax({
+           type: "POST",
+           url: url,
+           dataType: 'json',
+    	   processData: false,
+    	   contentType: false,
+           data: fd, // serializes the form's elements.
+           success: function(data)
+           {
+               alert(data); // show response from the php script.
+           }
+         });
+    
+	});*/
+
+	$("#idForm").submit(function(e) {
+    e.preventDefault(); // avoid to execute the actual submit of the form.
+	var form = $(this);
+    var url = form.attr('action');
+	var formData = new FormData();
+	formData.append('files', $('#formFile')[0].files[0]);
+
+	$.ajax({
+       url : url,
+       type : 'POST',
+       data : formData,
+       processData: false,  // tell jQuery not to process the data
+       contentType: false,  // tell jQuery not to set contentType
+       success : function(risposta) {
+           console.log(risposta);
+           listaPredict(risposta)
+       }
+	});
+	});
 
 	$( "#buttonPrediction" ).on( "click", function() {
 		$("#idContainerPrediction").html(" ")
@@ -316,6 +363,40 @@ $(document).ready(function(){
 	    $("#idContainerPrediction").append(riga)
 	}
 
+	listaPredict = function(risposta){
+		$("#idContainerPrediction").html("")
+		var titolo = $('<div>').attr({'id': 'titolo'})
+		$("#idContainerPrediction").append(titolo)
+		$('#titolo').html('File predictions')
+		var riga = $('<div>').attr({'class': 'row'})
+		riga.append($('<div>').attr({'class': 'col-4', 'id':'gbm'}))
+		riga.append($('<div>').attr({'class': 'col-4', 'id':'glm'}))
+		riga.append($('<div>').attr({'class': 'col-4', 'id':'drf'}))
+		$("#idContainerPrediction").append(riga)
+		lista_esterna = []
+		lista_interna = []
+		//console.log(risposta.size())
+		var json = $.parseJSON(risposta)
+
+		const tabella = $('<table class="table table-striped table-bordered display compact" style="width:100%"></table>').attr({'id':"idTabellaPredictions"})
+	    tabella.append($("<thead>"))
+	    tabella.append($("<tbody>"))
+	    tabella.append($("<tfoot>"))
+	    $('#idContainerPrediction').append(tabella)
+
+		$("#idTabellaPredictions").DataTable({
+			data: 			json
+			,pageLength:	4
+			,autoFill:		true
+			,columns: 	[
+							{title: "GBM", data: "gbm", name: "gbm"},
+							{title: "GLM", data: "glm", name: "glm"},
+							{title: "DRF", data: "drf", name: "drf"}
+						]
+		})
+
+	}
+
 	modelComparisonEvento = function(risposta){
 		console.log('funzione ok')
 		$("#idContainerPrediction").html("")
@@ -325,8 +406,13 @@ $(document).ready(function(){
 		var riga = $('<div>').attr({'class': 'row'})
 		riga.append($('<div>').attr({'class': 'col-4', 'id':'gbm'}))
 		riga.append($('<div>').attr({'class': 'col-4', 'id':'glm'}))
-		riga.append($('<div>').attr({'class': 'col-4', 'id':'naiveBayes'}))
+		riga.append($('<div>').attr({'class': 'col-4', 'id':'drf'}))
 		$("#idContainerPrediction").append(riga)
+		$("#gbm").html(risposta.prediction)
+		$("#glm").html(risposta.prediction1)
+		$("#drf").html(risposta.prediction2)
+
+
 		//creare html con apposite predizioni in base al json
 
 		var grafico = $('<div>').attr({'id': 'grafico'})
