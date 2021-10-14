@@ -386,7 +386,11 @@ $(document).ready(function(){
 
 		$("#idTabellaPredictions").DataTable({
 			data: 			json
-			,pageLength:	4
+			,"paging":   false
+        	,"ordering": false
+        	,"info":     false
+        	,"search":     false
+			//,pageLength:	4
 			,autoFill:		true
 			,columns: 	[
 							{title: "GBM", data: "gbm", name: "gbm"},

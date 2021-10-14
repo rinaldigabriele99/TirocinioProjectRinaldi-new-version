@@ -121,6 +121,7 @@ public final class ModelEndpoint {
 			}
 			//ctx.json(resp);
 			ctx.result(resp.toString());
+			//ctx.jsonStream(resp);
 			});
 			//ctx.html("Upload complete");
 		});
