@@ -89,13 +89,10 @@ public final class ModelEndpoint {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			int c = 0;
 			try {
 				while ((row = csvReader.readLine()) != null) {
 					JsonObject jo = new JsonObject();
 					RowData rd = new RowData();
-					c++;
-					//if (c == 1) continue;
 				    String[] data = row.split(",");
 				    for (int i=0; i<data.length; i++) {
 				    	rd.put(first_row[i], data[i]);
@@ -103,7 +100,7 @@ public final class ModelEndpoint {
 				    list.add(rd);
 				    double prediction = model.predict(rd);
 				    double prediction1 = model1.predict(rd);
-				    double prediction2 = model.predict(rd);
+				    double prediction2 = model2.predict(rd);
 				    jo.addProperty("gbm", prediction);
 				    jo.addProperty("glm", prediction1);
 				    jo.addProperty("drf", prediction2);

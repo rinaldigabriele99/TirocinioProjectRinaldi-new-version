@@ -195,7 +195,7 @@ $(document).ready(function(){
        contentType: false,  // tell jQuery not to set contentType
        success : function(risposta) {
            console.log(risposta);
-           listaPredict(risposta)
+           definisciEventiFile(risposta)
        }
 	});
 	});
@@ -274,7 +274,28 @@ $(document).ready(function(){
 			console.log($('#algoritmo option:selected').text())
 			modelComparisonEvento(risposta)
 		}
-	} 
+	}
+
+	definisciEventiFile = function(risposta){
+		// seleziona il testo
+		console.log($('#algoritmo option:selected').text())
+		if ($('#algoritmo option:selected').text() == 'Gradient Boosting Machine'){
+			console.log($('#algoritmo option:selected').text())
+			gbmEventoFile(risposta)
+		} 
+		if ($('#algoritmo option:selected').text() == 'Generalized Linear Model'){
+			console.log($('#algoritmo option:selected').text())
+			glmEventoFile(risposta)
+		}
+		if ($('#algoritmo option:selected').text() == 'Distributed Random Forest'){
+			console.log($('#algoritmo option:selected').text())
+			drfEventoFile(risposta)
+		}
+		if ($('#algoritmo option:selected').text() == 'Models Comparison'){
+			console.log($('#algoritmo option:selected').text())
+			modelComparisonEventoFile(risposta)
+		}
+	}
 
 	gbmEvento = function(risposta){
 		$("#idContainerPrediction").html("")
@@ -363,21 +384,81 @@ $(document).ready(function(){
 	    $("#idContainerPrediction").append(riga)
 	}
 
-	listaPredict = function(risposta){
+
+	glmEventoFile = function(risposta){
 		$("#idContainerPrediction").html("")
 		var titolo = $('<div>').attr({'id': 'titolo'})
 		$("#idContainerPrediction").append(titolo)
-		$('#titolo').html('File predictions')
-		var riga = $('<div>').attr({'class': 'row'})
-		riga.append($('<div>').attr({'class': 'col-4', 'id':'gbm'}))
-		riga.append($('<div>').attr({'class': 'col-4', 'id':'glm'}))
-		riga.append($('<div>').attr({'class': 'col-4', 'id':'drf'}))
-		$("#idContainerPrediction").append(riga)
-		lista_esterna = []
-		lista_interna = []
-		//console.log(risposta.size())
+		$('#titolo').html('Prediction with Generalized Linear Model algorithm')
+		var rigaVuota = $('<br>')
+		$("#idContainerPrediction").append(rigaVuota)
+		$("#idContainerPrediction").append(rigaVuota)
+		//creare html con apposite predizioni in base al json
 		var json = $.parseJSON(risposta)
+		console.log(json)
+		for (el in json){
+			var paragrafo1 = $("<span>").html("Wine quality  ")
+	    	var paragrafo2 = $("<span>").html(json[el].glm)
+	    	var riga = $("<hr>")
+	    	console.log(json[el].glm)
+	    	$("#idContainerPrediction").append(paragrafo1)
+		    $("#idContainerPrediction").append(paragrafo2)
+		    $("#idContainerPrediction").append(riga)
+		}
+	}
 
+	gbmEventoFile = function(risposta){
+		$("#idContainerPrediction").html("")
+		var titolo = $('<div>').attr({'id': 'titolo'})
+		$("#idContainerPrediction").append(titolo)
+		$('#titolo').html('Predictions with Gradient Boosting Machine algorithm')
+		var rigaVuota = $('<br>')
+		$("#idContainerPrediction").append(rigaVuota)
+		$("#idContainerPrediction").append(rigaVuota)
+		//creare html con apposite predizioni in base al json
+		var json = $.parseJSON(risposta)
+				for (el in json){
+			var paragrafo1 = $("<span>").html("Wine quality  ")
+	    	var paragrafo2 = $("<span>").html(json[el].glm)
+	    	var riga = $("<hr>")
+	    	console.log(json[el].glm)
+	    	$("#idContainerPrediction").append(paragrafo1)
+		    $("#idContainerPrediction").append(paragrafo2)
+		    $("#idContainerPrediction").append(riga)
+		}
+	}
+
+	drfEventoFile = function(risposta){
+		$("#idContainerPrediction").html("")
+		var titolo = $('<div>').attr({'id': 'titolo'})
+		$("#idContainerPrediction").append(titolo)
+		$('#titolo').html('Predictions with Distributed Random Fores algorithm')
+		var rigaVuota = $('<br>')
+		$("#idContainerPrediction").append(rigaVuota)
+		$("#idContainerPrediction").append(rigaVuota)
+		//creare html con apposite predizioni in base al json
+		var json = $.parseJSON(risposta)
+				for (el in json){
+			var paragrafo1 = $("<span>").html("Wine quality  ")
+	    	var paragrafo2 = $("<span>").html(json[el].glm)
+	    	var riga = $("<hr>")
+	    	console.log(json[el].glm)
+	    	$("#idContainerPrediction").append(paragrafo1)
+		    $("#idContainerPrediction").append(paragrafo2)
+		    $("#idContainerPrediction").append(riga)
+		}
+	}
+
+
+	modelComparisonEventoFile = function(risposta){
+		$("#idContainerPrediction").html("")
+		var titolo = $('<div>').attr({'id': 'titolo'})
+		$("#idContainerPrediction").append(titolo)
+		$('#titolo').html('Model comparison file predictions')
+		var rigaVuota = $('<br>')
+		$("#idContainerPrediction").append(rigaVuota)
+		$("#idContainerPrediction").append(rigaVuota)
+		var json = $.parseJSON(risposta)
 		const tabella = $('<table class="table table-striped table-bordered display compact" style="width:100%"></table>').attr({'id':"idTabellaPredictions"})
 	    tabella.append($("<thead>"))
 	    tabella.append($("<tbody>"))
@@ -390,7 +471,6 @@ $(document).ready(function(){
         	,"ordering": false
         	,"info":     false
         	,"search":     false
-			//,pageLength:	4
 			,autoFill:		true
 			,columns: 	[
 							{title: "GBM", data: "gbm", name: "gbm"},
@@ -398,7 +478,8 @@ $(document).ready(function(){
 							{title: "DRF", data: "drf", name: "drf"}
 						]
 		})
-
+		var riga = $("<hr>")
+		$("#idContainerPrediction").append(riga)
 	}
 
 	modelComparisonEvento = function(risposta){
@@ -407,6 +488,9 @@ $(document).ready(function(){
 		var titolo = $('<div>').attr({'id': 'titolo'})
 		$("#idContainerPrediction").append(titolo)
 		$('#titolo').html('Model Comparison')
+		var rigaVuota = $('<br>')
+		$("#idContainerPrediction").append(rigaVuota)
+		$("#idContainerPrediction").append(rigaVuota)
 		var riga = $('<div>').attr({'class': 'row'})
 		riga.append($('<div>').attr({'class': 'col-4', 'id':'gbm'}))
 		riga.append($('<div>').attr({'class': 'col-4', 'id':'glm'}))
@@ -415,10 +499,13 @@ $(document).ready(function(){
 		$("#gbm").html(risposta.prediction)
 		$("#glm").html(risposta.prediction1)
 		$("#drf").html(risposta.prediction2)
-
+		var riga = $("<hr>")
+		$("#idContainerPrediction").append(riga)
 
 		//creare html con apposite predizioni in base al json
-
+		var rigaVuota = $('<br>')
+		$("#idContainerPrediction").append(rigaVuota)
+		$("#idContainerPrediction").append(rigaVuota)
 		var grafico = $('<div>').attr({'id': 'grafico'})
 		$("#idContainerPrediction").append(grafico)
 		console.log('dentro al div grafico ci sono')
