@@ -35,7 +35,7 @@ import hex.genmodel.easy.prediction.RegressionModelPrediction;
  *
  */
 public final class DynamicPredictionExample {
-	
+
 	private static Logger logger;
 
 	public static final String MOJO_FOLDER = "src/main/resources/";
@@ -47,22 +47,21 @@ public final class DynamicPredictionExample {
 	 * @param args
 	 * @throws IOException
 	 * @throws PredictException
-	 * @throws ClassNotFoundException 
+	 * @throws ClassNotFoundException
 	 */
 	public static void main(String[] args) throws IOException, PredictException {
 		System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "DEBUG");
 		logger = LoggerFactory.getLogger(DynamicPredictionExample.class);
-		
+
 		Set<String> mojoPaths = findMojos();
 		logger.info("MOJOs found in folder {}: {}", MOJO_FOLDER, mojoPaths);
-		List<MojoModel> mojos = loadMojos(mojoPaths);
+		List<NamedMojo> mojos = loadMojos(mojoPaths);
 		logger.info("MOJOs loaded");
-		List<EasyPredictModelWrapper> models = wrapMojos(mojos);
+		List<NamedMojo> models = wrapMojos(mojos);
 		logger.info("Models created");
 		List<RowData> testDataSet = loadTestData();
 		logger.info("Data loaded");
-		Map<EasyPredictModelWrapper, List<AbstractPrediction>> predictionsPerModel = doPredictions(models,
-				testDataSet);
+		Map<NamedMojo, List<AbstractPrediction>> predictionsPerModel = doPredictions(models, testDataSet);
 		logger.info("Predictions made");
 		logPredictions(predictionsPerModel);
 	}
@@ -70,16 +69,16 @@ public final class DynamicPredictionExample {
 	/**
 	 * @param predictionsPerModel
 	 */
-	private static void logPredictions(Map<EasyPredictModelWrapper, List<AbstractPrediction>> predictionsPerModel) {
+	private static void logPredictions(Map<NamedMojo, List<AbstractPrediction>> predictionsPerModel) {
 		ModelCategory modelCat;
 		RegressionModelPrediction prediction;
-		for (EasyPredictModelWrapper model : predictionsPerModel.keySet()) {
+		for (NamedMojo model : predictionsPerModel.keySet()) {
 			modelCat = model.getModelCategory();
 			for (AbstractPrediction aPrediction : predictionsPerModel.get(model)) {
 				switch (modelCat) {
 				case Regression:
 					prediction = (RegressionModelPrediction) aPrediction;
-					logger.info("{} prediction: {}", modelCat, prediction.value);
+					logger.info("{} prediction of model {}: {}", modelCat, model.getName(), prediction.value);
 					break;
 				default:
 					logger.warn("{} model not currently supported", modelCat);
@@ -95,15 +94,15 @@ public final class DynamicPredictionExample {
 	 * @return
 	 * @throws PredictException
 	 */
-	private static Map<EasyPredictModelWrapper, List<AbstractPrediction>> doPredictions(
-			List<EasyPredictModelWrapper> models, List<RowData> testDataSet) throws PredictException {
-		Map<EasyPredictModelWrapper, List<AbstractPrediction>> predictionsPerModel = new HashMap<>();
+	private static Map<NamedMojo, List<AbstractPrediction>> doPredictions(List<NamedMojo> models,
+			List<RowData> testDataSet) throws PredictException {
+		Map<NamedMojo, List<AbstractPrediction>> predictionsPerModel = new HashMap<>();
 		List<AbstractPrediction> predictions;
-		for (EasyPredictModelWrapper model : models) {
+		for (NamedMojo model : models) {
 			predictions = new ArrayList<>();
 			predictionsPerModel.put(model, predictions);
 			for (RowData rowData : testDataSet) {
-				logger.debug("Predicting row {}", rowData);
+				logger.debug("Predicting with {} row {}", model.getName(), rowData);
 				predictions.add(model.predict(rowData, model.getModelCategory()));
 			}
 		}
@@ -141,26 +140,36 @@ public final class DynamicPredictionExample {
 	 * @param mojos
 	 * @return
 	 */
-	private static List<EasyPredictModelWrapper> wrapMojos(List<MojoModel> mojos) {
-		List<EasyPredictModelWrapper> models = new ArrayList<>();
-		for (MojoModel mojo : mojos) {
-			models.add(new EasyPredictModelWrapper(mojo));
+	private static List<NamedMojo> wrapMojos(List<NamedMojo> mojos) {
+		for (NamedMojo mojo : mojos) {
+			mojo.setModel(new EasyPredictModelWrapper(mojo.getMojo()));
 		}
-		return models;
+		return mojos;
 	}
 
 	/**
 	 * @return
 	 * @throws IOException
 	 */
-	private static List<MojoModel> loadMojos(Set<String> mojoPaths) throws IOException {
-		List<MojoModel> mojos = new ArrayList<>();
+	private static List<NamedMojo> loadMojos(Set<String> mojoPaths) throws IOException {
+		List<NamedMojo> mojos = new ArrayList<>();
+		NamedMojo nMojo;
 		for (String path : mojoPaths) {
-			mojos.add(MojoModel.load(path));
+			nMojo = new NamedMojo(filenameNoExt(path));
+			nMojo.setMojo(MojoModel.load(path));
+			mojos.add(nMojo);
 		}
 		return mojos;
 	}
-	
+
+	/**
+	 * @param path
+	 * @return
+	 */
+	private static String filenameNoExt(String path) {
+		return Paths.get(path).getFileName().toString().replaceAll(MOJO_EXT, "");
+	}
+
 	/**
 	 * 
 	 * @return
@@ -168,13 +177,9 @@ public final class DynamicPredictionExample {
 	 */
 	private static Set<String> findMojos() throws IOException {
 		try (Stream<Path> stream = Files.list(Paths.get(MOJO_FOLDER))) {
-	        return stream
-	          .filter(file -> !Files.isDirectory(file))
-//	          .map(Path::getFileName)
-	          .map(Path::toString)
-	          .filter(filename -> filename.endsWith(MOJO_EXT))
-	          .collect(Collectors.toSet());
-	    }
+			return stream.filter(file -> !Files.isDirectory(file)).map(Path::toString)
+					.filter(filename -> filename.endsWith(MOJO_EXT)).collect(Collectors.toSet());
+		}
 	}
 
 }
