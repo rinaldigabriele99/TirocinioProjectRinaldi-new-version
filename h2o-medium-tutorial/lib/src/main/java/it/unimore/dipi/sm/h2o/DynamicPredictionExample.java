@@ -7,13 +7,20 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.impl.SimpleLogger;
 
 import hex.ModelCategory;
 import hex.genmodel.MojoModel;
@@ -21,6 +28,7 @@ import hex.genmodel.easy.EasyPredictModelWrapper;
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
 import hex.genmodel.easy.prediction.AbstractPrediction;
+import hex.genmodel.easy.prediction.RegressionModelPrediction;
 
 /**
  * @author sm
@@ -28,14 +36,12 @@ import hex.genmodel.easy.prediction.AbstractPrediction;
  */
 public final class DynamicPredictionExample {
 	
-	private static final Logger logger = LoggerFactory.getLogger(DynamicPredictionExample.class);
+	private static Logger logger;
 
-	public static final String CSV_SEPARATOR = ",";
-	public static final String[] MOJO_PATHS = { "src/main/resources/GBM_model_python_1632315299562_4.zip",
-			"src/main/resources/glm_f62a2764_cf25_4d29_86e1_79f93779e554.zip",
-			"src/main/resources/drf_47bb7c5b_0398_403b_aac8_305a8aa47972.zip" };
+	public static final String MOJO_FOLDER = "src/main/resources/";
+	private static final String MOJO_EXT = ".zip";
 	public static final String TEST_DATA_PATH = "src/main/resources/sample.csv";
-	public static final String PREDICTION_CLASSNAME_TEMPLATE = "hex.genmodel.easy.prediction.%sModelPrediction";
+	public static final String CSV_SEPARATOR = ",";
 
 	/**
 	 * @param args
@@ -43,26 +49,40 @@ public final class DynamicPredictionExample {
 	 * @throws PredictException
 	 * @throws ClassNotFoundException 
 	 */
-	public static void main(String[] args) throws IOException, PredictException, ClassNotFoundException {
-		List<MojoModel> mojos = loadMojos();
+	public static void main(String[] args) throws IOException, PredictException {
+		System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "DEBUG");
+		logger = LoggerFactory.getLogger(DynamicPredictionExample.class);
+		
+		Set<String> mojoPaths = findMojos();
+		logger.info("MOJOs found in folder {}: {}", MOJO_FOLDER, mojoPaths);
+		List<MojoModel> mojos = loadMojos(mojoPaths);
+		logger.info("MOJOs loaded");
 		List<EasyPredictModelWrapper> models = wrapMojos(mojos);
+		logger.info("Models created");
 		List<RowData> testDataSet = loadTestData();
-		Map<EasyPredictModelWrapper, List<AbstractPrediction>> predictionsPerModel = predictAbstract(models,
+		logger.info("Data loaded");
+		Map<EasyPredictModelWrapper, List<AbstractPrediction>> predictionsPerModel = doPredictions(models,
 				testDataSet);
+		logger.info("Predictions made");
+		logPredictions(predictionsPerModel);
+	}
+
+	/**
+	 * @param predictionsPerModel
+	 */
+	private static void logPredictions(Map<EasyPredictModelWrapper, List<AbstractPrediction>> predictionsPerModel) {
 		ModelCategory modelCat;
-		Class<?> clazz;
+		RegressionModelPrediction prediction;
 		for (EasyPredictModelWrapper model : predictionsPerModel.keySet()) {
 			modelCat = model.getModelCategory();
 			for (AbstractPrediction aPrediction : predictionsPerModel.get(model)) {
-				logger.info("Abstract prediction for model <{}>: {}", model.toString(), aPrediction.toString());
-				clazz = Class.forName(String.format(PREDICTION_CLASSNAME_TEMPLATE, modelCat));
-				logger.info("\tcorresponding <{}> prediction: {}", clazz.getSimpleName(), clazz.cast(aPrediction).toString());
-				switch (key) {
-				case value:
-					
+				switch (modelCat) {
+				case Regression:
+					prediction = (RegressionModelPrediction) aPrediction;
+					logger.info("{} prediction: {}", modelCat, prediction.value);
 					break;
-
 				default:
+					logger.warn("{} model not currently supported", modelCat);
 					break;
 				}
 			}
@@ -75,7 +95,7 @@ public final class DynamicPredictionExample {
 	 * @return
 	 * @throws PredictException
 	 */
-	private static Map<EasyPredictModelWrapper, List<AbstractPrediction>> predictAbstract(
+	private static Map<EasyPredictModelWrapper, List<AbstractPrediction>> doPredictions(
 			List<EasyPredictModelWrapper> models, List<RowData> testDataSet) throws PredictException {
 		Map<EasyPredictModelWrapper, List<AbstractPrediction>> predictionsPerModel = new HashMap<>();
 		List<AbstractPrediction> predictions;
@@ -83,6 +103,7 @@ public final class DynamicPredictionExample {
 			predictions = new ArrayList<>();
 			predictionsPerModel.put(model, predictions);
 			for (RowData rowData : testDataSet) {
+				logger.debug("Predicting row {}", rowData);
 				predictions.add(model.predict(rowData, model.getModelCategory()));
 			}
 		}
@@ -95,14 +116,17 @@ public final class DynamicPredictionExample {
 	 * @throws FileNotFoundException
 	 */
 	private static List<RowData> loadTestData() throws IOException, FileNotFoundException {
-		String[] header;
 		String line;
+		String[] header;
 		String[] row;
 		List<RowData> testDataSet = new ArrayList<>();
 		RowData testDataRow = new RowData();
 		try (BufferedReader csvReader = new BufferedReader(new FileReader(TEST_DATA_PATH))) {
-			header = csvReader.readLine().split(CSV_SEPARATOR);
+			line = csvReader.readLine();
+			header = line.split(CSV_SEPARATOR);
+			logger.debug("Dataset header: {}", line);
 			while ((line = csvReader.readLine()) != null) {
+				logger.debug("Dataset row: {}", line);
 				row = line.split(CSV_SEPARATOR);
 				for (int i = 0; i < row.length; i++) {
 					testDataRow.put(header[i], row[i]);
@@ -129,12 +153,28 @@ public final class DynamicPredictionExample {
 	 * @return
 	 * @throws IOException
 	 */
-	private static List<MojoModel> loadMojos() throws IOException {
+	private static List<MojoModel> loadMojos(Set<String> mojoPaths) throws IOException {
 		List<MojoModel> mojos = new ArrayList<>();
-		for (String path : MOJO_PATHS) {
+		for (String path : mojoPaths) {
 			mojos.add(MojoModel.load(path));
 		}
 		return mojos;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	private static Set<String> findMojos() throws IOException {
+		try (Stream<Path> stream = Files.list(Paths.get(MOJO_FOLDER))) {
+	        return stream
+	          .filter(file -> !Files.isDirectory(file))
+//	          .map(Path::getFileName)
+	          .map(Path::toString)
+	          .filter(filename -> filename.endsWith(MOJO_EXT))
+	          .collect(Collectors.toSet());
+	    }
 	}
 
 }
