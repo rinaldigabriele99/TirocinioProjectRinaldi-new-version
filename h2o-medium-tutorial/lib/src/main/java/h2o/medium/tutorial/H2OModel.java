@@ -10,6 +10,7 @@ import hex.genmodel.MojoModel;
 import hex.genmodel.easy.EasyPredictModelWrapper;
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
+import hex.genmodel.easy.prediction.AbstractPrediction;
 import hex.genmodel.easy.prediction.RegressionModelPrediction;
 
 /**
@@ -29,6 +30,10 @@ public final class H2OModel {
 	public double predict(RowData input) {
 		try {
 			RegressionModelPrediction prediction = predict.predictRegression(input);
+			
+//			AbstractPrediction ap = this.predict.predict(input, this.model.getModelCategory()); // when kind of prediction is not known in advance!
+//			Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(this.model.getModelCategory() + "Prediction"); // or, switch-case
+			
 			return prediction.value;
 		} catch (PredictException e) {
 			e.printStackTrace();
