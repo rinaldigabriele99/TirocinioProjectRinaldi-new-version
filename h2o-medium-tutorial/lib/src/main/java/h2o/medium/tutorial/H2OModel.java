@@ -10,7 +10,6 @@ import hex.genmodel.MojoModel;
 import hex.genmodel.easy.EasyPredictModelWrapper;
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.exception.PredictException;
-import hex.genmodel.easy.prediction.AbstractPrediction;
 import hex.genmodel.easy.prediction.RegressionModelPrediction;
 
 /**
@@ -18,36 +17,32 @@ import hex.genmodel.easy.prediction.RegressionModelPrediction;
  *
  */
 public final class H2OModel {
-	
+
 	private MojoModel model;
 	private EasyPredictModelWrapper predict;
-	
+
 	public H2OModel(String modelPath) throws IOException {
 		this.model = MojoModel.load(modelPath);
 		this.predict = new EasyPredictModelWrapper(this.model);
 	}
-	
+
 	public double predict(RowData input) {
 		try {
 			RegressionModelPrediction prediction = predict.predictRegression(input);
-			
-//			AbstractPrediction ap = this.predict.predict(input, this.model.getModelCategory()); // when kind of prediction is not known in advance!
-//			Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(this.model.getModelCategory() + "Prediction"); // or, switch-case
-			
 			return prediction.value;
 		} catch (PredictException e) {
 			e.printStackTrace();
 			return 0.0;
 		}
 	}
-	
+
 	public String modelCategory() {
-			ModelCategory category = predict.getModelCategory();
-			return category.toString();
+		ModelCategory category = predict.getModelCategory();
+		return category.toString();
 	}
-	
+
 	public String[] leafNode(RowData input) throws PredictException {
 		return predict.leafNodeAssignment(input);
-}
+	}
 
 }
