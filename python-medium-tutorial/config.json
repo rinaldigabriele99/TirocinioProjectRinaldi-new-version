@@ -1,0 +1,16 @@
+{
+  "dataset_path": "winequality-red.csv",
+  "train_params": {
+    "ntrees": 500,
+    "learn_rate": 0.01,
+    "max_depth": 8,
+    "min_rows": 5,
+    "sample_rate": 0.8,
+    "col_sample_rate": 0.8
+  },
+  "target_y": "quality",
+  "train_test_split": 0.7,
+  "model": "GBE",
+  "nfolds": 5,
+  "mojo_path": "models/"
+}
