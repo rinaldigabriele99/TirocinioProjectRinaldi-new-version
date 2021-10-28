@@ -12,5 +12,5 @@
   "train_test_split": 0.7,
   "model": "GBE",
   "nfolds": 5,
-  "mojo_path": "models/"
+  "mojo_path": "models"
 }
